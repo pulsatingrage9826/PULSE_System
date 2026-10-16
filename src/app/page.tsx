@@ -301,7 +301,7 @@ export default function LandingPage() {
               </div>
 
               {/* In Partnership With — below the laptop image */}
-              <div className="w-full text-center">
+              <div className="w-full text-center animate-fade-in">
                 <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-4">
                   In Partnership With:
                 </p>
