@@ -3,6 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Tooltip } from "@/components/ui/tooltip";
 import { Button } from "@/components/ui/button";
 import {
   BarChart3,
@@ -285,7 +286,7 @@ export default function LandingPage() {
             </div>
 
             {/* Right Content - Image with more space */}
-            <div className="relative flex items-center justify-center lg:justify-end lg:pr-8">
+            <div className="relative flex flex-col items-center justify-center lg:items-end lg:pr-8 gap-8">
               <div className="relative w-full max-w-4xl mx-auto">
                 {/* Soft gradient overlay */}
                 <div className="absolute inset-0 bg-gradient-to-l from-transparent via-pink-100/20 to-blue-100/20 rounded-2xl -z-10"></div>
@@ -297,6 +298,33 @@ export default function LandingPage() {
                   className="w-full h-auto drop-shadow-2xl animate-fade-in opacity-90"
                   priority
                 />
+              </div>
+
+              {/* In Partnership With — below the laptop image */}
+              <div className="w-full text-center">
+                <p className="text-xs font-semibold tracking-widest text-gray-500 uppercase mb-4">
+                  In Partnership With:
+                </p>
+                <div className="flex items-center justify-center gap-4 flex-wrap">
+                  {[
+                    { src: '/sulop-logo.jpg', alt: 'Municipality of Sulop',                          tooltip: 'Municipality of Sulop' },
+                    { src: '/dilg.png',       alt: 'DILG',                                           tooltip: 'Department of Interior and Local Government' },
+                    { src: '/mlgrc.png',      alt: 'MLGRC',                                          tooltip: 'Municipal Local Governance Resource Center' },
+                    { src: '/umlogo.webp',    alt: 'University of Mindanao Digos College Branch',    tooltip: 'University of Mindanao Digos College Branch' },
+                  ].map(({ src, alt, tooltip }) => (
+                    <Tooltip key={alt} content={tooltip} position="bottom">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl border border-gray-200 bg-white shadow-sm flex items-center justify-center p-2 hover:shadow-md transition-shadow duration-200 cursor-pointer">
+                        <Image
+                          src={src}
+                          alt={alt}
+                          width={64}
+                          height={64}
+                          className="object-contain w-full h-full"
+                        />
+                      </div>
+                    </Tooltip>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
