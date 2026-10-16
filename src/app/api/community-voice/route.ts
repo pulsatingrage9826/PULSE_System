@@ -20,8 +20,9 @@ export async function GET(request: NextRequest) {
     const barangayId = searchParams.get('barangayId')
     const forceRefresh = searchParams.get('refresh') === 'true'
     
-    // Get active cycle
-    const activeCycleId = await getActiveCycleId()
+    // Use provided cycleId if given, otherwise fall back to active cycle
+    const cycleIdParam = searchParams.get('cycleId')
+    const activeCycleId = cycleIdParam ? parseInt(cycleIdParam) : await getActiveCycleId()
     if (!activeCycleId) {
       return NextResponse.json({ error: 'No active survey cycle found' }, { status: 400 })
     }
@@ -97,10 +98,10 @@ async function performCommunityVoiceAnalysis(barangayId: string | null, activeCy
 
     if (error) {
       console.error('Database error:', error)
-      return NextResponse.json({ 
-        error: 'Failed to fetch survey data',
-        details: error.message || 'Unknown database error'
-      }, { status: 500 })
+      // Throw instead of returning NextResponse — this function is called inside
+      // getCachedOrCompute's callback, so returning a NextResponse object would
+      // cause it to be stored in ml_cache and served as data, poisoning the cache.
+      throw new Error(error.message || 'Failed to fetch survey data')
     }
 
     console.log(`Fetched ${surveyData?.length || 0} survey responses for community voice analysis`)

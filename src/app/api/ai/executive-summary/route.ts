@@ -25,19 +25,28 @@ export async function POST(request: NextRequest) {
 
     console.log(`🤖 [GEMINI] Generating executive summary for Barangay ${barangayId}, Cycle ${cycleId}`);
 
-    // Check if survey is complete (100% progress) before generating summary
-    const { data: surveyTarget, error: targetError } = await supabaseAdmin
+    // Check if survey is complete by counting actual completed/submitted responses
+    // against the target — avoids reading the stale survey_target.percentage column.
+    const { data: targetRow, error: targetError } = await supabaseAdmin
       .from('survey_target')
-      .select('percentage')
+      .select('target')
       .eq('barangay_id', barangayId)
       .eq('survey_cycle_id', cycleId)
       .single();
 
     if (targetError && targetError.code !== 'PGRST116') {
-      console.error('Error checking survey progress:', targetError);
+      console.error('Error checking survey target:', targetError);
     }
 
-    const progress = surveyTarget?.percentage || 0;
+    const { count: achievedCount } = await supabaseAdmin
+      .from('survey_response')
+      .select('*', { count: 'exact', head: true })
+      .eq('barangay_id', barangayId)
+      .eq('survey_cycle_id', cycleId)
+      .in('status', ['completed', 'submitted']);
+
+    const target = targetRow?.target || 0;
+    const progress = target > 0 ? Math.min(100, Math.round(((achievedCount || 0) / target) * 100)) : 0;
 
     // If survey is not complete, return a special response
     if (progress < 100) {
